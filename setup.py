@@ -2,17 +2,17 @@
 import os
 from setuptools import setup, find_packages
 
-version = open('src/stxnext/staticdeployment/version.txt').read()
+version = open('src/stxnext/grayscale/version.txt').read()
 
 setup (
-    name='stxnext.staticdeployment',
+    name='stxnext.grayscale',
     version=version,
-    author='STX Next Sp. z o.o, Igor Kupczyński, Radosław Jankiewicz, Wojciech Lichota',
+    author='STX Next Sp. z o.o, Radosław Jankiewicz',
     author_email='info@stxnext.pl',
-    description='Deploy Plone site to static files.',
+    description='Displays the web pages transformed to grayscale.',
     long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
-    keywords='plone static deploy',
+    keywords='plone grayscale',
     platforms=['any'],
     url='http://www.stxnext.pl/open-source',
     license='Zope Public License, Version 2.1 (ZPL)',
@@ -24,7 +24,6 @@ setup (
 
     install_requires=[
         'setuptools',
-        'BeautifulSoup',
        ],
 
     entry_points="""
