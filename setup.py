@@ -26,6 +26,10 @@ setup (
         'setuptools',
        ],
 
+    extras_require={
+        'Zope2.10': ['ZPublisherEventsBackport'],
+    },
+
     entry_points="""
     [z3c.autoinclude.plugin]
     target = plone

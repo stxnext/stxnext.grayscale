@@ -1,8 +1,13 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:five="http://namespaces.zope.org/five"
-    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
-	xmlns:i18n="http://namespaces.zope.org/i18n"
-    i18n_domain="stxnext.grayscale">
+    xmlns:zcml="http://namespaces.zope.org/zcml">
 
+  <include
+  	zcml:condition="not-installed ZPublisher.interfaces"
+    package="ZPublisherEventsBackport"
+    />
+
+  <subscriber for="ZPublisher.interfaces.IPubBeforeCommit"
+              handler=".events.GrayscaleTransformations" />
+              
 </configure>
