@@ -36,7 +36,7 @@ def GrayscaleTransformations(event):
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
          isinstance(context, (File, FSFile)) and \
-         context.content_type in ['text/css', 'text/html']:
+         context.content_type.split(';')[0] in ['text/css', 'text/html']:
         
         matches = utils.COLOR_PATTERN.findall(resp_body)
         for match in set(matches):
