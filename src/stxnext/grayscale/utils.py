@@ -2,8 +2,7 @@ import re
 from PIL import Image
 from StringIO import StringIO
 
-import logging
-log = logging.getLogger('stxnext.grayscale')
+from stxnext.grayscale import log
 
 COLOR_PATTERN = re.compile(r"#[a-fA-F0-9]{6}")
 

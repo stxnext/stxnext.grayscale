@@ -9,5 +9,7 @@
 
   <subscriber for="ZPublisher.interfaces.IPubBeforeCommit"
               handler=".events.GrayscaleTransformations" />
+  <subscriber for="ZPublisher.interfaces.IPubAfterTraversal"
+              handler=".events.GrayscaleTransformations" />
               
 </configure>

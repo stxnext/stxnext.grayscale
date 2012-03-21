@@ -1,9 +1,11 @@
 from OFS.Image import File
 from Products.CMFCore.FSFile import FSFile
 from Products.CMFCore.FSImage import FSImage
+from Products.ATContentTypes.interface.image import IATImage
 from plone.app.linkintegrity.interfaces import IOFSImage
 from zope.publisher.interfaces.browser import IBrowserView
 
+from stxnext.grayscale import log
 import utils
 
 def GrayscaleTransformations(event):
@@ -29,10 +31,16 @@ def GrayscaleTransformations(event):
         
     if hasattr(context, 'context'):
         context = context.context
-    
-    if isinstance (context, FSImage) or IOFSImage.providedBy(context):
+        
+    if isinstance (context, FSImage) or \
+       IOFSImage.providedBy(context) or \
+       IATImage.providedBy(context):
         path = '/'.join(context.getPhysicalPath())
-        resp_body = utils.image_to_grayscale(resp_body, path)
+        image_body = resp_body
+        if not image_body and hasattr(context, 'data'):
+            image_body = context.data
+        if image_body:
+            resp_body = utils.image_to_grayscale(image_body, path)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
          isinstance(context, (File, FSFile)) and \
