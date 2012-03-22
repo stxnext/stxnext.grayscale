@@ -6,6 +6,7 @@ from Products.ATContentTypes.content.file import ATFile
 from plone.app.linkintegrity.interfaces import IOFSImage
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.component import getUtility
+from zope.component.interfaces import ComponentLookupError
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ISiteRoot
 
@@ -17,10 +18,22 @@ def transformation_event(event):
     Checks if current default theme is 
     meant to be transformed to grayscale
     """
-    portal = getUtility(ISiteRoot)
+    request = event.request
+    try:
+        portal = getUtility(ISiteRoot)
+    except ComponentLookupError:
+        return
     skins_tool = getToolByName(portal, 'portal_skins')
     properties_tool = getToolByName(portal, 'portal_properties')
-    if skins_tool.getDefaultSkin() in properties_tool.site_properties.getProperty('transformed_themes'):
+    transformed_themes = properties_tool.site_properties.getProperty('transformed_themes')
+    if not transformed_themes:
+        return
+    request_varname = skins_tool.request_varname
+    if request.get(request_varname):
+        selected_skin = request.get(request_varname)
+    else:
+        selected_skin = skins_tool.getDefaultSkin()
+    if selected_skin in transformed_themes:
         GrayscaleTransformations(event)
 
 def GrayscaleTransformations(event):
