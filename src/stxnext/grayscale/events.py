@@ -5,9 +5,23 @@ from Products.ATContentTypes.interface.image import IATImage
 from Products.ATContentTypes.content.file import ATFile
 from plone.app.linkintegrity.interfaces import IOFSImage
 from zope.publisher.interfaces.browser import IBrowserView
+from zope.component import getUtility
+from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.interfaces import ISiteRoot
 
 from stxnext.grayscale import log
 import utils
+
+def transformation_event(event):
+    """
+    Checks if current default theme is 
+    meant to be transformed to grayscale
+    """
+    portal = getUtility(ISiteRoot)
+    skins_tool = getToolByName(portal, 'portal_skins')
+    properties_tool = getToolByName(portal, 'portal_properties')
+    if skins_tool.getDefaultSkin() in properties_tool.site_properties.getProperty('transformed_themes'):
+        GrayscaleTransformations(event)
 
 def GrayscaleTransformations(event):
     """
