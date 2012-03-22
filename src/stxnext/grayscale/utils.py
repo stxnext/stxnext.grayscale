@@ -40,4 +40,17 @@ def image_to_grayscale(image, path):
     except IOError, err:
         log.error('Error while transforming image: %s : %s' % (path, err))
         return image
-   
+
+def add_bodyclass(html_text):
+    """
+    applies the 'gray-scale' css class on body tag 
+    """
+    bodymatches = re.findall(r"<body.*>", html_text, re.I)
+    for bodytag in bodymatches:
+        if 'class' in bodytag:
+            for css_classs in re.findall(r"class\s*=\s*[\'\"](.*)[\'\"]", bodytag, re.I):
+                modified_bodytag = bodytag.replace(css_classs, ' '.join((css_classs, 'gray-style')))
+        else:
+            modified_bodytag = bodytag.replace('>', ' class="gray-style">')
+        html_text = html_text.replace(bodytag, modified_bodytag)
+    return html_text
