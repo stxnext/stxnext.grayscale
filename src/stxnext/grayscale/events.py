@@ -10,6 +10,11 @@ from zope.component.interfaces import ComponentLookupError
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ISiteRoot
 
+try:
+    from plone.resource.file import FilesystemFile
+except ImportError:
+    pass
+
 from stxnext.grayscale import log
 import utils
 
@@ -59,10 +64,21 @@ def GrayscaleTransformations(event):
         
     if hasattr(context, 'context'):
         context = context.context
+    
+    content_type = ''
+    path = ''
+    
+    if isinstance (context, FilesystemFile):
+        resp_body = context().read()
+        path = context.path
+        content_type = context.getContentType()
+        
     if isinstance (context, FSImage) or \
        IOFSImage.providedBy(context) or \
-       IATImage.providedBy(context):
-        path = '/'.join(context.getPhysicalPath())
+       IATImage.providedBy(context) or \
+       content_type.split(';')[0] in ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']:
+        if not path:
+            path = '/'.join(context.getPhysicalPath())
         image_body = resp_body
         if not image_body and hasattr(context, 'data'):
             image_body = context.data
@@ -70,6 +86,7 @@ def GrayscaleTransformations(event):
             resp_body = utils.image_to_grayscale(image_body, path)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
+         content_type.split(';')[0] in ['text/css', 'text/html'] or \
          isinstance(context, (File, FSFile, ATFile)) and \
          context.content_type.split(';')[0] in ['text/css', 'text/html']:
         if hasattr(context, 'data'):
@@ -81,6 +98,7 @@ def GrayscaleTransformations(event):
             gray_color = utils.rgb_to_html_color((average, average, average))
             resp_body = resp_body.replace(match, gray_color)
         resp_body = utils.add_bodyclass(resp_body)
+
             
     response.setBody(resp_body)
     
