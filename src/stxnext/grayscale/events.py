@@ -49,8 +49,8 @@ def GrayscaleTransformations(event):
     shades palette
     """
     # TODO:
-    # configureable enabled,
-    # configureable transformable skin names,
+    # configureable transformable skin names, (DONE)
+    # configureable transformable diazo themes,
     # transformating other (than hex) conventions of colors definitions
     # rename the images paths to avoid browser cache
     # save the transformed images in ZODB and fallback to them if possible
