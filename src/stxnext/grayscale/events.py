@@ -12,8 +12,9 @@ from Products.CMFCore.interfaces import ISiteRoot
 
 try:
     from plone.resource.file import FilesystemFile
+    PLONE_RESOURCE_INSTALLED = True
 except ImportError:
-    pass
+    PLONE_RESOURCE_INSTALLED = False
 
 from stxnext.grayscale import log
 import utils
@@ -62,7 +63,7 @@ def GrayscaleTransformations(event):
     content_type = ''
     path = ''
     
-    if isinstance (context, FilesystemFile):
+    if PLONE_RESOURCE_INSTALLED and isinstance (context, FilesystemFile):
         resp_body = context().read()
         path = context.path
         content_type = context.getContentType()
