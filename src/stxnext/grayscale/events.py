@@ -86,6 +86,8 @@ def GrayscaleTransformations(event):
          context.content_type.split(';')[0] in ['text/css', 'text/html']:
         if hasattr(context, 'data'):
             resp_body = context.data
+            if hasattr(resp_body, 'data'):
+                resp_body = resp_body.data
         matches = utils.COLOR_PATTERN.findall(resp_body)
         for match in set(matches):
             r, g, b = utils.htmls_color_to_rgb(match)
