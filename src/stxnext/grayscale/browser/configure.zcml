@@ -4,5 +4,10 @@
     xmlns:browser="http://namespaces.zope.org/browser">
 
     <include package=".preferences" />
+    
+    <browser:resource
+        name="stxnext.grayscale.icon.png"
+        image="icon.png"
+        />
 
 </configure>

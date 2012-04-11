@@ -9,23 +9,23 @@ from Products.CMFPlone.interfaces import IPloneSiteRoot
 from plone.app.controlpanel.site import SiteControlPanel, SiteControlPanelAdapter
 from plone.app.controlpanel.form import ControlPanelForm
 
-#from stxnext.grayscale import VPMessageFactory as _
+from stxnext.grayscale import StxnextGrayscaleMessageFactory as _
 
 class IGrayscaleSettingsSchema(Interface):
-    """Interface for additional control panel settings
+    """
+    Interface for additional control panel settings
     """
 
-    transformed_themes = Tuple(title=u'Choice field',
-                              description=u'desc',
-                              required=False,
-                              value_type=Choice(title=u'Choice field',
-                                description=u'OPIS',
-                                required = False,
-                                vocabulary = 'plone.app.vocabularies.Skins')
-                              )
+    transformed_themes = Tuple(title = _(u'Skins transformed to grayscale'),
+                               description = _(u'Select skin to be transformed to grayscale'),
+                               required = False,
+                               value_type = Choice(required = False,
+                                                   vocabulary = 'plone.app.vocabularies.Skins')
+                               )
 
 class GrayscaleControlPanelAdapter(SiteControlPanelAdapter):
-    """Adapter for greyscale site control panel.
+    """
+    Storage for grayscale site control panel settings
     """
 
     adapts(IPloneSiteRoot)
@@ -35,11 +35,12 @@ class GrayscaleControlPanelAdapter(SiteControlPanelAdapter):
 
 
 class GrayscaleSettingsForm(ControlPanelForm):
-    """Static export form
+    """
+    Grayscale transformation skins settings form
     """
 
     form_fields = FormFields(IGrayscaleSettingsSchema)
 
-    label = "Grayscale settings"
-    description = None
-    form_name = "Grayscale settings"
+    label = _('Grayscale settings')
+    description = ''
+    form_name = _('Grayscale skin settings')

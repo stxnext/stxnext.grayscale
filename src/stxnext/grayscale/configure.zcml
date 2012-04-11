@@ -4,25 +4,23 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     i18n_domain="plone">
-
-    <genericsetup:registerProfile
-        name="default"
-        title="stxnext.grayscale"
-        directory="profiles/default"
-        description="grayscale profile"
-        provides="Products.GenericSetup.interfaces.EXTENSION"
-        />
-
+    
   <include
-  	zcml:condition="not-installed ZPublisher.interfaces"
+	zcml:condition="not-installed ZPublisher.interfaces"
     package="ZPublisherEventsBackport"
     />
 
   <include package=".browser" />
-
-  <subscriber for="ZPublisher.interfaces.IPubBeforeCommit"
-              handler=".events.transformation_event" />
-  <subscriber for="ZPublisher.interfaces.IPubAfterTraversal"
-              handler=".events.GrayscaleTransformations" />
+  <include file="event.zcml"/>
+      
+  <i18n:registerTranslations directory="locales"/>
+    
+  <genericsetup:registerProfile
+	name="default"
+	title="stxnext.grayscale"
+	directory="profiles/default"
+	description="grayscale profile"
+	provides="Products.GenericSetup.interfaces.EXTENSION"
+	/>
               
 </configure>
