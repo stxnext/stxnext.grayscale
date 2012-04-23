@@ -81,21 +81,22 @@ def GrayscaleTransformations(event):
             resp_body = utils.image_to_grayscale(image_body, path)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
-         content_type.split(';')[0] in ['text/css', 'text/html'] or \
+         content_type.split(';')[0] in ['text/html'] or \
          isinstance(context, (File, FSFile, ATFile)) and \
-         context.content_type.split(';')[0] in ['text/css', 'text/html']:
+         context.content_type.split(';')[0] in ['text/html']:
         if hasattr(context, 'data'):
             resp_body = context.data
             if hasattr(resp_body, 'data'):
                 resp_body = resp_body.data
-        matches = utils.COLOR_PATTERN.findall(resp_body)
-        for match in set(matches):
-            r, g, b = utils.htmls_color_to_rgb(match)
-            average = (r + g + b) / 3
-            gray_color = utils.rgb_to_html_color((average, average, average))
-            resp_body = resp_body.replace(match, gray_color)
         resp_body = utils.add_bodyclass(resp_body)
 
+    elif content_type.split(';')[0] in ['text/css'] or \
+            context.content_type.split(';')[0] in ['text/css']:
+        if hasattr(context, 'data'):
+            resp_body = context.data
+            if hasattr(resp_body, 'data'):
+                resp_body = resp_body.data
+        resp_body = utils.transform_sheet(resp_body)
             
     response.setBody(resp_body)
     
