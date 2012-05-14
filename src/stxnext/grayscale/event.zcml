@@ -8,7 +8,7 @@
   
   <subscriber
 	for="ZPublisher.interfaces.IPubAfterTraversal"
-    handler=".events.GrayscaleTransformations"
+    handler=".events.transformation_event"
     />
 
 </configure>
