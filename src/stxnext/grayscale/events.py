@@ -1,3 +1,4 @@
+from Acquisition import aq_base
 from OFS.Image import File
 from Products.CMFCore.FSFile import FSFile
 from Products.CMFCore.FSImage import FSImage
@@ -9,6 +10,7 @@ from zope.component import getUtility
 from zope.component.interfaces import ComponentLookupError
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFCore.FSPageTemplate import FSPageTemplate
 
 try:
     from plone.resource.file import FilesystemFile
@@ -42,6 +44,24 @@ def transformation_event(event):
     if selected_skin in transformed_themes:
         GrayscaleTransformations(event)
 
+
+#def failure_event(event):
+#    """
+#    """
+#    parent = event.request.get('PARENTS')[0]
+#    if parent:
+#        path = event.request.other['VIRTUAL_URL_PARTS'][1].replace('grayscale_', '')
+#        image = parent.restrictedTraverse(path)
+#        data = image.data
+#        event.request.traverse('/Inteligo/' + path)
+#        event.request.retry = True
+#        event.request.response.setBody(utils.image_to_grayscale(data, path))
+##        if IATImage.providedBy(parent):
+##            utils.image_to_grayscale(image_body, path)
+#    else:
+#        pass
+        
+
 def GrayscaleTransformations(event):
     """
     Changing the response body by converting
@@ -66,12 +86,12 @@ def GrayscaleTransformations(event):
     if PLONE_RESOURCE_INSTALLED and isinstance (context, FilesystemFile):
         resp_body = context().read()
         path = context.path
-        content_type = context.getContentType()
-        
+        content_type = context.getContentType().split(';')[0]
+    
     if isinstance (context, FSImage) or \
        IOFSImage.providedBy(context) or \
        IATImage.providedBy(context) or \
-       content_type.split(';')[0] in ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']:
+       content_type in ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']:
         if not path:
             path = '/'.join(context.getPhysicalPath())
         image_body = resp_body
@@ -81,22 +101,17 @@ def GrayscaleTransformations(event):
             resp_body = utils.image_to_grayscale(image_body, path)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
-         content_type.split(';')[0] in ['text/html'] or \
-         isinstance(context, (File, FSFile, ATFile)) and \
-         context.content_type.split(';')[0] in ['text/html']:
-        if hasattr(context, 'data'):
+         content_type in ['text/html', 'text/css'] or \
+         isinstance(context, (File, FSFile, ATFile, FSPageTemplate)) and \
+         context.content_type.split(';')[0] in ['text/html', 'text/css']:
+        
+        if hasattr(aq_base(context), 'data'):
             resp_body = context.data
             if hasattr(resp_body, 'data'):
                 resp_body = resp_body.data
+                
         resp_body = utils.add_bodyclass(resp_body)
-
-    elif content_type.split(';')[0] in ['text/css'] or \
-            context.content_type.split(';')[0] in ['text/css']:
-        if hasattr(context, 'data'):
-            resp_body = context.data
-            if hasattr(resp_body, 'data'):
-                resp_body = resp_body.data
-        resp_body = utils.transform_sheet(resp_body)
-            
+        resp_body = utils.transform_style_properties(resp_body)
+        
     response.setBody(resp_body)
     

@@ -4,132 +4,95 @@ from StringIO import StringIO
 
 from stxnext.grayscale import log
 
-COLOR_PATTERN = re.compile(r" aqua | black | blue | fuchsia |gray| green |"+\
-                            " lime | maroon | navy | olive | orange |"+\
-                            " purple | red | silver | teal | white | yellow |"+\
-                            "#[a-f0-9]{6}|#[a-f0-9]{3}|"+\
-                            "rgb\(.+\)", re.M | re.I)
+COLOR_PATTERN = re.compile(r"#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}|rgb\(.+?\)|color:\s*(?:\w+)", re.M | re.I)
 
-#css color names and their grayscale versions in css notation.
+# most popular css color names and their grayscale versions in css notation.
 KWRD_MAP = {
-  'aqua': '#aaaaaa',
-  'black': '#000000',
-  'blue': '#555555',
-  'fuchsia': '#aaaaaa',
-  'gray': '#808080',
-  'green': '#2a2a2a',
-  'lime': '#55555',
-  'maroon': '#2a2a2a',
-  'navy': '#2a2a2a',
-  'olive': '#555555',
-  'orange': '#8c8c8c',
-  'purple': '#555555',
-  'red': '#555555',
-  'silver': '#c0c0c0',
-  'teal': '#555555',
-  'white': '#ffffff',
-  'yellow': '#aaaaaa'}
+  'blue'   : '#1d1d1d',
+  'gray'   : '#808080',
+  'green'  : '#969696',
+  'orange' : '#8c8c8c',
+  'purple' : '#555555',
+  'red'    : '#4c4c4c',
+  'silver' : '#c0c0c0',
+  'yellow' : '#aaaaaa',
+  }
 
+def transform_style_properties(text):
+    """
+    Converts the occurances of the color definitions
+    to gray scale equivalents
+    """
+    matches = COLOR_PATTERN.findall(text)
+    for match in set(matches):
+        converted_match = transform_value(match)
+        text = text.replace(match, converted_match)
+    return text
 
-def avg_tuple(tup):
+def transform_value(color_str):
+    """
+    Transforms a single color value given
+    in any string format to a relevant grayscale
+    representation.
+    """
+    color_val = color_str.split(':')[-1].lower().strip(' ;')
+    if color_val in KWRD_MAP:
+        return 'color: %s' % KWRD_MAP[color_val]
+    else:
+        if color_val.startswith('#'):
+            tup_val = hex_to_tuple(color_val)
+        elif color_val.startswith('rgb'):
+            tup_val = rgb_to_tuple(color_val)
+        else:
+            return color_str
+        return tuple_to_hex(grayscale_tuple(tup_val))
+
+def grayscale_tuple(tup):
     """
     Takes a 3-tuple and returns a 3-tuple,
-    with average of the input.
+    with the valu of the input color converted
+    to grayscale
     """
-    avg = (tup[0] + tup[1] + tup[2])/3
-    return (avg, avg, avg)
-
-
-def is_grey(tup):
-    """
-    Chekcs if givet tuple has equal elements
-    """
-    if len(tup) != 3: return False
-    return len(set(tup)) == 1
-
+    gray = 0.299 * tup[0] + 0.587 * tup[1] + 0.114 * tup[2]
+    gray = int(round(gray))
+    return (gray, gray, gray)
 
 def hex_to_tuple(text):
     """
     Transform #rrggbb notation of color 
     to 3-tuple (r, g, b)
     """
-    text.strip()
-    text = text.replace('#', '')
-    if len(text) == 3:
-        r, g, b = (text[0], text[1], text[2])
-    elif len(text) == 6:
-        r, g, b = (text[:2], text[2:4], text[4:])
+    colorstring = text.strip()
+    if colorstring[0] == '#': colorstring = colorstring[1:]
+    if len(colorstring) == 3:
+        r, g, b = (colorstring[0] * 2, colorstring[1] * 2, colorstring[2] * 2)
+    elif len(colorstring) == 6:
+        r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
     else:
-        return text
+        raise ValueError, "input #%s is not in #RRGGBB format" % colorstring
     return tuple([int(x, 16) for x in (r, g, b)])
-
 
 def rgb_to_tuple(text):
     """
     Transforms rgb(x,x,x) both in decimal and %
     notation of color to 3-tuple (r, g, b)
     """
+    numbers = re.findall(r'\d+', text)
     if '%' in text:
-        rem = ('rgb', '(', ')', ',', ' ')
-        for x in rem: text = text.replace(x, '')
-        res = text.split('%')
-        res = filter(None, res)
-        return tuple([int((int(x)/100.0) * 255) for x in res])
+        return tuple([int((int(x)/100.0) * 255) for x in numbers])
     else:
-        rem = ('rgb','(', ')', '%', ' ')
-        for x in rem: text = text.replace(x, '')
-        text = text.split(',')
-        return tuple([int(x) for x in text])
+        return tuple([int(x) for x in numbers])
 
-
-def tuple_to_rgb(tup):
+def tuple_to_hex(tup):
     """
     Transforms 3-tuple with colors to 
     #RRGGBB html notation.
     """
     return '#%02x%02x%02x' % tup
 
-
-def transform_value(val):
-    """
-    Transforms a single color value to grayscale.
-    """
-    if val.lower() in KWRD_MAP:
-        #colors as keywords
-        val = KWRD_MAP[val.lower()]
-    else:
-        if val.startswith('#'):
-            #colors as #rrggbb
-            tup_val = hex_to_tuple(val)
-        elif val.startswith('rgb'):
-            #colors as rgb(x,y,z)
-            tup_val = rgb_to_tuple(val)
-        else:
-	        return val
-        if is_grey(tup_val): return val
-        
-        val= tuple_to_rgb(avg_tuple(tup_val))
-    return val
-
-
-def transform_sheet(sheetstr):
-    """
-    Accepts string. Transform single stylesheet to grayscale 
-    using regexp.
-    """
-    #to do:
-    # extract colors only from given attributes
-    # handle shorhand properties
-    matches = COLOR_PATTERN.findall(sheetstr)
-    for match in set(matches):
-        avg = transform_value(match)
-        sheetstr = sheetstr.replace(match, avg)
-    return sheetstr
-
-
 def image_to_grayscale(image, path):
     """
-    converts image data to grayscale using PIL library 
+    Converts image data to grayscale using PIL library 
     """
     try:
         imagestring = StringIO(image)
@@ -143,10 +106,9 @@ def image_to_grayscale(image, path):
         log.error('Error while transforming image: %s : %s' % (path, err))
         return image
 
-
 def add_bodyclass(html_text):
     """
-    applies the 'gray-scale' css class on body tag 
+    Applies the 'gray-scale' css class on body tag 
     """
     bodymatches = re.findall(r"<body.*>", html_text, re.I)
     for bodytag in bodymatches:
