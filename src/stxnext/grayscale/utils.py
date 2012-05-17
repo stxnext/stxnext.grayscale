@@ -1,9 +1,15 @@
+import os
 import re
 from PIL import Image
 from StringIO import StringIO
 
-from stxnext.grayscale import log
+from zope.app.component.hooks import getSite
 
+from stxnext.grayscale import log
+from stxnext.grayscale.config import TYPE, THEME
+
+# TODO:
+# correct the regexp to work with rgba color notation
 COLOR_PATTERN = re.compile(r"#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}|rgb\(.+?\)|color:\s*(?:\w+)", re.M | re.I)
 
 # most popular css color names and their grayscale versions in css notation.
@@ -38,7 +44,7 @@ def transform_value(color_str):
     color_val = color_str.split(':')[-1].lower().strip(' ;')
     if color_val in KWRD_MAP:
         return 'color: %s' % KWRD_MAP[color_val]
-    else:
+    elif not color_str.startswith('color'):
         if color_val.startswith('#'):
             tup_val = hex_to_tuple(color_val)
         elif color_val.startswith('rgb'):
@@ -46,6 +52,8 @@ def transform_value(color_str):
         else:
             return color_str
         return tuple_to_hex(grayscale_tuple(tup_val))
+    else:
+        return color_str
 
 def grayscale_tuple(tup):
     """
@@ -90,12 +98,12 @@ def tuple_to_hex(tup):
     """
     return '#%02x%02x%02x' % tup
 
-def image_to_grayscale(image, path):
+def image_to_grayscale(image_data, path):
     """
     Converts image data to grayscale using PIL library 
     """
     try:
-        imagestring = StringIO(image)
+        imagestring = StringIO(image_data)
         image_file = Image.open(imagestring)
         converted = image_file.convert('RGBA')
         converted = converted.convert('LA')
@@ -104,7 +112,7 @@ def image_to_grayscale(image, path):
         return res.getvalue()
     except IOError, err:
         log.error('Error while transforming image: %s : %s' % (path, err))
-        return image
+        return image_data
 
 def add_bodyclass(html_text):
     """
@@ -119,3 +127,25 @@ def add_bodyclass(html_text):
             modified_bodytag = bodytag.replace('>', ' class="gray-style">')
         html_text = html_text.replace(bodytag, modified_bodytag)
     return html_text
+
+def get_resource(request, response, filename):
+    """
+    Returns the data of the resource cached
+    in the file system
+    """
+    site = getSite()
+    cached_file = site.restrictedTraverse('/++%s++%s/%s' % (TYPE, THEME, filename))
+    return cached_file(REQUEST=request, RESPONSE=response).read()
+
+def store_resource(filename, data):
+    """
+    Stores the data of the resource in the
+    file system
+    """
+    site = getSite()
+    location = site.restrictedTraverse('/++%s++%s' % (TYPE, THEME)).directory
+    fs_file = open(os.path.join(location, filename), "w")
+    try:
+        fs_file.write(data)
+    finally:
+        fs_file.close()
