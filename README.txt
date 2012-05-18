@@ -3,7 +3,7 @@ stxnext.grayscale
 
 # TODO:
 # [DONE] 1. fix error in converting flags images (gif)
-# 2. correct the regexp to work with rgba color notation [S]
+# [DONE] 2. correct the regexp to work with rgba color notation [S]
 # 3. add querystring to images paths to avoid browser cache [S]
 # [DONE] 4. automatically setup the resources dirs
 # 5. add possibility to clear filesystem cache in settings form 

@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
 import os
 import re
 from PIL import Image
 from StringIO import StringIO
 
 from zope.app.component.hooks import getSite
+from zope.component import queryMultiAdapter
+from zope.contentprovider.interfaces import ContentProviderLookupError
+from Products.CMFCore.FSPageTemplate import FSPageTemplate
+from Products.Five import BrowserView
+from Products.PythonScripts.PythonScript import PythonScript
 
 from stxnext.grayscale import log
 from stxnext.grayscale.config import TYPE, THEME
@@ -159,3 +165,42 @@ def store_resource(filename, data):
         fs_file.write(data)
     finally:
         fs_file.close()
+
+def render_object_html(obj, request):
+    """
+    Returns rendered html for given content object
+    """
+    published = request.get('PUBLISHED')
+    if isinstance(published, (BrowserView, FSPageTemplate, PythonScript)):
+        try:
+            return published() or ''
+        except NotFound:
+            log.error("Resource '%s' not found" % repr(obj))
+            return ''
+    
+    def_page_id = obj.getDefaultPage()
+    if def_page_id:
+        def_page = obj[def_page_id]
+        return render_object_html(def_page, request)
+
+    view_name = obj.getLayout()
+    view = queryMultiAdapter((obj, request), name=view_name)
+    if view:
+        try:
+            return view.context() or ''
+        except ContentProviderLookupError:
+            pass
+
+    view = obj.restrictedTraverse(view_name, None)
+    if view:
+        try:
+            return view.context() or ''
+        except AttributeError:
+            return view() or ''
+
+    try:
+        return obj()
+    except AttributeError:
+        pass
+    return ''
+    

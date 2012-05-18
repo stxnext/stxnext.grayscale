@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Acquisition import aq_base
 from OFS.Image import File
 from Products.CMFCore.FSFile import FSFile
@@ -6,7 +7,6 @@ from Products.ATContentTypes.interface.image import IATImage
 from Products.ATContentTypes.content.file import ATFile
 from plone.app.linkintegrity.interfaces import IOFSImage
 from zope.app.component.hooks import getSite
-from zope.browserresource.file import File as browserresourcefile
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.component import queryUtility
 from zope.component.interfaces import ComponentLookupError
@@ -15,15 +15,22 @@ from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.FSPageTemplate import FSPageTemplate
 from zExceptions import NotFound
 
+from stxnext.grayscale import log
+import utils
+
+# compatibility with Plone 3
 try:
     from plone.resource.file import FilesystemFile
     from plone.resource.interfaces import IResourceDirectory
     PLONE_RESOURCE_INSTALLED = True
 except ImportError:
     PLONE_RESOURCE_INSTALLED = False
+try:
+    from zope.browserresource.file import File as browserresourcefile
+    BROWSER_RESOURCE_INSTALLED = True
+except ImportError:
+    BROWSER_RESOURCE_INSTALLED = False
 
-from stxnext.grayscale import log
-import utils
 
 
 def transformation_event(event):
@@ -82,12 +89,17 @@ def GrayscaleTransformations(event):
         
     images_content_types = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']
     
+    browser_resource_image = False
+    if BROWSER_RESOURCE_INSTALLED:
+        if isinstance (context, browserresourcefile) and \
+           context.content_type.split(';')[0] in images_content_types:
+            browser_resource_image = True
+        
     if isinstance (context, FSImage) or \
        IOFSImage.providedBy(context) or \
        IATImage.providedBy(context) or \
        content_type in images_content_types or \
-       isinstance (context, browserresourcefile) and \
-       context.content_type.split(';')[0] in images_content_types:
+       browser_resource_image:
         
         if not path:
             try:
@@ -126,6 +138,9 @@ def GrayscaleTransformations(event):
             resp_body = context.data
             if hasattr(resp_body, 'data'):
                 resp_body = resp_body.data
+                
+        if isinstance(context, FSFile):
+            resp_body = context._readFile(0)
         
         if content_type == 'text/css' or \
            isinstance(context, (File, FSFile, ATFile, FSPageTemplate)) and \
@@ -143,6 +158,8 @@ def GrayscaleTransformations(event):
                         utils.store_resource(filename, resp_body)
                 
         else:
+            if not resp_body:
+                resp_body = utils.render_object_html(context, request)
             resp_body = utils.add_bodyclass(resp_body)
             resp_body = utils.transform_style_properties(resp_body)
             
