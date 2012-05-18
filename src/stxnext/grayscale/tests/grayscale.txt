@@ -1,0 +1,13 @@
+Imports and variables:
+
+    >>> import plone.testing.z2 as helpers
+    >>> from plone.app.testing import login, logout, TEST_USER_NAME, TEST_USER_ID, setRoles
+    >>> import transaction
+    >>> app = layer.get('app')
+    >>> portal = layer.get('portal')
+    >>> request = layer.get('request')
+    >>> browser = helpers.Browser(app)
+    >>> browser.handleErrors = False
+    >>> setRoles(portal, TEST_USER_ID, ['Manager'])
+    >>> portal_url = portal.absolute_url()
+

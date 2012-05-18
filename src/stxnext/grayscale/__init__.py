@@ -8,7 +8,7 @@ try:
     PLONE_RESOURCE_INSTALLED = True
 except ImportError:
     PLONE_RESOURCE_INSTALLED = False
-    
+
 from stxnext.grayscale.config import TYPE, THEME
 
 log = logging.getLogger('stxnext.grayscale')

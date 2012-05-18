@@ -27,6 +27,10 @@ setup (
        ],
 
     extras_require={
+         'test': [
+            'Plone',
+            'plone.app.testing',
+            ],
         'Zope2.10': ['ZPublisherEventsBackport'],
     },
 
