@@ -8,9 +8,7 @@ from zope.app.component.hooks import getSite
 from stxnext.grayscale import log
 from stxnext.grayscale.config import TYPE, THEME
 
-# TODO:
-# correct the regexp to work with rgba color notation
-COLOR_PATTERN = re.compile(r"#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}|rgb\(.+?\)|color:\s*(?:\w+)", re.M | re.I)
+COLOR_PATTERN = re.compile(r"#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}|rgba?\(.+?\)|color:\s*(?:\w+)", re.M | re.I)
 
 # most popular css color names and their grayscale versions in css notation.
 KWRD_MAP = {
@@ -47,6 +45,8 @@ def transform_value(color_str):
     elif not color_str.startswith('color'):
         if color_val.startswith('#'):
             tup_val = hex_to_tuple(color_val)
+        elif color_val.startswith('rgba'):
+            return rgba_grayscale(color_val)
         elif color_val.startswith('rgb'):
             tup_val = rgb_to_tuple(color_val)
         else:
@@ -71,7 +71,8 @@ def hex_to_tuple(text):
     to 3-tuple (r, g, b)
     """
     colorstring = text.strip()
-    if colorstring[0] == '#': colorstring = colorstring[1:]
+    # remove trailing "#"
+    colorstring = colorstring.lstrip('#')
     if len(colorstring) == 3:
         r, g, b = (colorstring[0] * 2, colorstring[1] * 2, colorstring[2] * 2)
     elif len(colorstring) == 6:
@@ -90,6 +91,15 @@ def rgb_to_tuple(text):
         return tuple([int((int(x)/100.0) * 255) for x in numbers])
     else:
         return tuple([int(x) for x in numbers])
+
+def rgba_grayscale(text):
+    """
+    Replaces x, y, z colors in rgba(x,y,z,a) with coresponding grayscale values
+    """
+    tup_val = rgb_to_tuple(text)
+    rgb_grayscale_tup = grayscale_tuple(tup_val[:3])
+    rgba_grayscale_tup = rgb_grayscale_tup + tup_val[3:5]
+    return "rgba(%d, %d, %d, %d.%d)" % rgba_grayscale_tup
 
 def tuple_to_hex(tup):
     """
