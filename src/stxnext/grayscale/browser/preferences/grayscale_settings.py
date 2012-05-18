@@ -96,7 +96,7 @@ class GrayscaleSettingsForm(ControlPanelForm):
                 location = site.restrictedTraverse(path).directory
             except AttributeError, e:
                 log.info('Unable to remove files for: %s due to: AttributeError: %s' % (path, e))
-                message = _(u"Couldn't remove files for %s" % path)
+                message = _(u"Couldn't remove files from %s" % path)
                 messages.addStatusMessage(message, type='error')
                 return
 
