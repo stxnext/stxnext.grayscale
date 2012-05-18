@@ -68,7 +68,7 @@ def GrayscaleTransformations(event):
     resp_body = response.getBody()
     content_type = ''
     path = ''
-    
+
     resp_body = getattr(context, 'GET', lambda: '')()
     if hasattr(context, 'im_self'):
         context = context.im_self
@@ -153,6 +153,7 @@ def GrayscaleTransformations(event):
                     raise NotFound
             except NotFound:                
                 resp_body = utils.transform_style_properties(resp_body)
+                resp_body = utils.transform_css_url(resp_body)
                 if PLONE_RESOURCE_INSTALLED:
                     if queryUtility(IResourceDirectory, name=u''):
                         utils.store_resource(filename, resp_body)
@@ -162,6 +163,8 @@ def GrayscaleTransformations(event):
                 resp_body = utils.render_object_html(context, request)
             resp_body = utils.add_bodyclass(resp_body)
             resp_body = utils.transform_style_properties(resp_body)
+            resp_body = utils.transform_css_url(resp_body)
+            resp_body = utils.transform_img_src(resp_body)
             
     response.setBody(resp_body)
     

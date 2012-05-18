@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import re
+import urlparse
 from PIL import Image
 from StringIO import StringIO
 
@@ -15,6 +16,8 @@ from stxnext.grayscale import log
 from stxnext.grayscale.config import TYPE, THEME
 
 COLOR_PATTERN = re.compile(r"#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}|rgba?\(.+?\)|color:\s*(?:\w+)", re.M | re.I)
+IMG_SRC_PATTERN = re.compile(r"<\s*img\s+[^>]*src\s*=\s*[\"']?([^\"' >]+)[\"']", re.I)
+CSS_URL_PATTERN = re.compile(r"""url\(["']?([^\)'"]+)['"]?\)""", re.I)
 
 # most popular css color names and their grayscale versions in css notation.
 KWRD_MAP = {
@@ -27,6 +30,40 @@ KWRD_MAP = {
   'silver' : '#c0c0c0',
   'yellow' : '#aaaaaa',
   }
+
+
+def add_param_to_url(url):
+    """
+    Adds "&grayscale=1" param to the url
+    """
+    url = list(urlparse.urlsplit(url))
+    if url[3]:
+        url[3] += '&grayscale=1'
+    else:
+        url[3] = 'grayscale=1'
+    return urlparse.urlunsplit(url)
+
+def transform_img_src(text):
+    """
+    Adds "grayscale=1" param to the ULR in src attribute in <img> tags to avoid
+    caching images
+    """
+    urls = IMG_SRC_PATTERN.findall(text)
+    for url in urls:
+        new_url = add_param_to_url(url)
+        text = text.replace(url, new_url)
+    return text
+
+def transform_css_url(text):
+    """
+    Adds "grayscale=1" param to the URL in url() directive in CSS to avoid
+    caching images
+    """
+    urls = CSS_URL_PATTERN.findall(text)
+    for url in urls:
+        new_url = add_param_to_url(url)
+        text = text.replace(url, new_url)
+    return text
 
 def transform_style_properties(text):
     """
