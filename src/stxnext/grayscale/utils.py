@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 import os
 import re
 import urlparse
 from PIL import Image
 from StringIO import StringIO
 
+from zExceptions import NotFound
 from zope.app.component.hooks import getSite
 from zope.component import queryMultiAdapter
 from zope.contentprovider.interfaces import ContentProviderLookupError

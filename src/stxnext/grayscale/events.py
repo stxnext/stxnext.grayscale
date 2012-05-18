@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 from Acquisition import aq_base
 from OFS.Image import File
 from Products.CMFCore.FSFile import FSFile
