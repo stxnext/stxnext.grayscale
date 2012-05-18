@@ -60,9 +60,10 @@ def GrayscaleTransformations(event):
     resp_body = response.getBody()
     content_type = ''
     path = ''
+    
+    resp_body = getattr(context, 'GET', lambda: '')()
     if hasattr(context, 'im_self'):
         context = context.im_self
-        
     if hasattr(context, 'context'):
         context = context.context
     
@@ -71,13 +72,13 @@ def GrayscaleTransformations(event):
         path = context.path
         content_type = context.getContentType().split(';')[0]
     
-    try:
-        filename = context.getId()
-    except AttributeError:
-        filename = context.__name__
-    except:
-        return
-    
+    filename = getattr(context, 'getId', lambda: False)()
+    if not filename:
+        try:
+            filename = context.__name__
+        except AttributeError:
+            return
+        
     images_content_types = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']
     
     if isinstance (context, FSImage) or \
@@ -97,10 +98,17 @@ def GrayscaleTransformations(event):
             resp_body = utils.get_resource(request, response, filename)
         except NotFound:
             image_body = resp_body
-            if not image_body and hasattr(context, 'data'):
-                image_body = context.data
+            
+            if not image_body:
+                if hasattr(context, 'data'):
+                    image_body = context.data
+                elif isinstance (context, FSImage):
+                    image_body = context._readFile(True)
+                    
             if image_body:
                 resp_body = utils.image_to_grayscale(image_body, path)
+            else:
+                log.debug('Image doesn\'t contain any data: %s' % (path))
             utils.store_resource(filename, resp_body)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \

@@ -2,7 +2,7 @@ stxnext.grayscale
 =================
 
 # TODO:
-# 1. fix error in converting flags images (gif)
+# [DONE] 1. fix error in converting flags images (gif)
 # 2. correct the regexp to work with rgba color notation
 # 3. add querystring to images paths to avoid browser cache
 # 4. make buildout automatically setup the resources dirs

@@ -134,7 +134,7 @@ def get_resource(request, response, filename):
     in the file system
     """
     site = getSite()
-    cached_file = site.restrictedTraverse('/++%s++%s/%s' % (TYPE, THEME, filename))
+    cached_file = site.restrictedTraverse(str('/++%s++%s/%s' % (TYPE, THEME, filename)))
     return cached_file(REQUEST=request, RESPONSE=response).read()
 
 def store_resource(filename, data):
@@ -143,7 +143,7 @@ def store_resource(filename, data):
     file system
     """
     site = getSite()
-    location = site.restrictedTraverse('/++%s++%s' % (TYPE, THEME)).directory
+    location = site.restrictedTraverse(str('/++%s++%s' % (TYPE, THEME))).directory
     fs_file = open(os.path.join(location, filename), "w")
     try:
         fs_file.write(data)
