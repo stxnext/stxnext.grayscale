@@ -8,7 +8,7 @@ from plone.app.linkintegrity.interfaces import IOFSImage
 from zope.app.component.hooks import getSite
 from zope.browserresource.file import File as browserresourcefile
 from zope.publisher.interfaces.browser import IBrowserView
-from zope.component import getUtility
+from zope.component import queryUtility
 from zope.component.interfaces import ComponentLookupError
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ISiteRoot
@@ -17,6 +17,7 @@ from zExceptions import NotFound
 
 try:
     from plone.resource.file import FilesystemFile
+    from plone.resource.interfaces import IResourceDirectory
     PLONE_RESOURCE_INSTALLED = True
 except ImportError:
     PLONE_RESOURCE_INSTALLED = False
@@ -95,10 +96,12 @@ def GrayscaleTransformations(event):
                 path = filename
                         
         try:
-            resp_body = utils.get_resource(request, response, filename)
+            if PLONE_RESOURCE_INSTALLED:
+                resp_body = utils.get_resource(request, response, filename)
+            else:
+                raise NotFound
         except NotFound:
             image_body = resp_body
-            
             if not image_body:
                 if hasattr(context, 'data'):
                     image_body = context.data
@@ -109,7 +112,10 @@ def GrayscaleTransformations(event):
                 resp_body = utils.image_to_grayscale(image_body, path)
             else:
                 log.debug('Image doesn\'t contain any data: %s' % (path))
-            utils.store_resource(filename, resp_body)
+                
+            if PLONE_RESOURCE_INSTALLED:
+                if queryUtility(IResourceDirectory, name=u''):
+                    utils.store_resource(filename, resp_body)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
          content_type in ['text/html', 'text/css'] or \
@@ -126,10 +132,15 @@ def GrayscaleTransformations(event):
            context.content_type.split(';')[0] == 'text/css':
             
             try:
-                resp_body = utils.get_resource(request, response, filename)
+                if PLONE_RESOURCE_INSTALLED:
+                    resp_body = utils.get_resource(request, response, filename)
+                else:
+                    raise NotFound
             except NotFound:                
                 resp_body = utils.transform_style_properties(resp_body)
-                utils.store_resource(filename, resp_body)
+                if PLONE_RESOURCE_INSTALLED:
+                    if queryUtility(IResourceDirectory, name=u''):
+                        utils.store_resource(filename, resp_body)
                 
         else:
             resp_body = utils.add_bodyclass(resp_body)
