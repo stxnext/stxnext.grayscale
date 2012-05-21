@@ -16,7 +16,7 @@ from Products.PythonScripts.PythonScript import PythonScript
 from stxnext.grayscale import log
 from stxnext.grayscale.config import TYPE, THEME
 
-COLOR_PATTERN = re.compile(r"(?<=[:\s])#[a-fA-F0-9]{6}|(?<=[:\s])#[a-fA-F0-9]{3}(?=[\s;\"\'])|rgba?\(.+?\)|color:\s*[a-z]+", re.M | re.I)
+COLOR_PATTERN = re.compile(r"(?<=[:\s])#[a-fA-F0-9]{6}|(?<=[:\s])#[a-fA-F0-9]{3}(?=[\s;\"\'])|rgba?\(.+?\)|color:\s*(?!rgb)[a-z]+", re.M | re.I)
 IMG_SRC_PATTERN = re.compile(r"<\s*img\s+[^>]*src\s*=\s*[\"']?([^\"' >]+)[\"']", re.I)
 CSS_URL_PATTERN = re.compile(r"""url\(["']?([^\)'"]+)['"]?\)""", re.I)
 

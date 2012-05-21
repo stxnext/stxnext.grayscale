@@ -21,10 +21,10 @@ background: rgb(11,11);
 background:rgba(44,55,66, 1);
 color:rgb(44%,55%,66%);
 
-style="color: rgb(1,2,3)"
+style="color: rgba(1,2,3)"
 """
 RGB_RGBA_MATCH = sorted(['rgb(10%, 20%, 10%)', 'rgba(11%,22%,33%, 0.1)',
-    'rgb(11,11)', 'rgba(44,55,66, 1)', 'rgb(44%,55%,66%)', 'rgb(1,2,3)'])
+    'rgb(11,11)', 'rgba(44,55,66, 1)', 'rgb(44%,55%,66%)', 'rgba(1,2,3)'])
 
 NAMED_COLORS = """
 border: 1px solid white; // will not be matched
