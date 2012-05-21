@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import os
+import shutil
 
 from zope.app.component.hooks import getSite
 from zope.component import adapts
@@ -106,6 +107,8 @@ class GrayscaleSettingsForm(ControlPanelForm):
                     file_path = os.path.join(location, filename)
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
+                    else:
+                        shutil.rmtree(file_path)
             except OSError, e:
                 log.info('Unable to remove files from: %s due to error: %s' % (location, e))
                 message = _(u"Couldn't remove files from %s" % location)

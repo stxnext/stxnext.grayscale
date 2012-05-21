@@ -77,7 +77,6 @@ def GrayscaleTransformations(event):
     
     if PLONE_RESOURCE_INSTALLED and isinstance (context, FilesystemFile):
         resp_body = context().read()
-        path = context.path
         content_type = context.getContentType().split(';')[0]
     
     filename = getattr(context, 'getId', lambda: False)()
@@ -109,7 +108,7 @@ def GrayscaleTransformations(event):
                         
         try:
             if PLONE_RESOURCE_INSTALLED:
-                resp_body = utils.get_resource(request, response, filename)
+                resp_body = utils.get_resource(request, response, path)
             else:
                 raise NotFound
         except NotFound:
@@ -127,7 +126,7 @@ def GrayscaleTransformations(event):
                 
             if PLONE_RESOURCE_INSTALLED:
                 if queryUtility(IResourceDirectory, name=u''):
-                    utils.store_resource(filename, resp_body)
+                    utils.store_resource(path, resp_body)
         
     elif IBrowserView.providedBy(request.get('PUBLISHED')) or \
          content_type in ['text/html', 'text/css'] or \
@@ -151,7 +150,7 @@ def GrayscaleTransformations(event):
                     resp_body = utils.get_resource(request, response, filename)
                 else:
                     raise NotFound
-            except NotFound:                
+            except NotFound:
                 resp_body = utils.transform_style_properties(resp_body)
                 resp_body = utils.transform_css_url(resp_body)
                 if PLONE_RESOURCE_INSTALLED:

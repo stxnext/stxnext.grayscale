@@ -196,17 +196,32 @@ def get_resource(request, response, filename):
     in the file system
     """
     site = getSite()
-    cached_file = site.restrictedTraverse(str('/++%s++%s/%s' % (TYPE, THEME, filename)))
+    cached_file = site.restrictedTraverse(str('/++%s++%s/%s' % (TYPE, THEME, filename.strip('/'))))
     return cached_file(REQUEST=request, RESPONSE=response).read()
 
-def store_resource(filename, data):
+def store_resource(path, data):
     """
     Stores the data of the resource in the
     file system
     """
     site = getSite()
     location = site.restrictedTraverse(str('/++%s++%s' % (TYPE, THEME))).directory
-    fs_file = open(os.path.join(location, filename), "w")
+    
+    if '/' in path:
+        path, filename = path.rsplit('/', 1)
+        dir_path = os.path.join(location, path.strip('/'))
+        if not os.path.exists(dir_path):
+            try:
+                os.makedirs(os.path.normpath(dir_path))
+            except OSError:
+                log.error("Unable to create directory: %s" % path)
+                return False
+    else:
+        filename = path
+        dir_path = location
+    
+    file_path = os.path.join(dir_path, filename)
+    fs_file = open(file_path, "w")
     try:
         fs_file.write(data)
     finally:
