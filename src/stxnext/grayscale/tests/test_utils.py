@@ -319,5 +319,36 @@ class TestRgbaGrayscake(unittest.TestCase):
         self.assertEqual(utils.rgba_grayscale(text), 'rgba(76, 76, 76, 1.0)')
 
 
+class TestAddBodyclass(unittest.TestCase):
+    """
+    Tests for stxnext.grayscale.utils.add_bodyclass
+    """
+
+    def test_body_no_attrs(self):
+        text = """<body>"""
+        self.assertEqual(utils.add_bodyclass(text),
+                """<body class="gray-style">""")
+
+    def test_body_w_attrs(self):
+        text = """<body dir="ltr">"""
+        self.assertEqual(utils.add_bodyclass(text),
+                """<body dir="ltr" class="gray-style">""")
+
+    def test_body_w_class_no_other_attrs(self):
+        text = """<body class='homepage'>"""
+        self.assertEqual(utils.add_bodyclass(text),
+                """<body class='gray-style homepage'>""")
+
+    def test_body_w_class_many_no_other_attrs(self):
+        text = """<body class="homepage template-document_view">"""
+        self.assertEqual(utils.add_bodyclass(text),
+                """<body class="gray-style homepage template-document_view">""")
+
+    def test_body_w_class_w_other_attrs(self):
+        text = """<body class='homepage template-document_view' dir='ltr'>"""
+        self.assertEqual(utils.add_bodyclass(text),
+                """<body class='gray-style homepage template-document_view' dir='ltr'>""")
+
+
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

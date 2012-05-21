@@ -182,8 +182,9 @@ def add_bodyclass(html_text):
     bodymatches = re.findall(r"<body.*>", html_text, re.I)
     for bodytag in bodymatches:
         if 'class' in bodytag:
-            for css_classs in re.findall(r"class\s*=\s*[\'\"](.*)[\'\"]", bodytag, re.I):
-                modified_bodytag = bodytag.replace(css_classs, ' '.join((css_classs, 'gray-style')))
+            for css_classs in re.findall(r"""class\s*=\s*[\'\"]([-\w ]*)[^>]*>""", bodytag, re.I):
+                modified_bodytag = bodytag.replace(css_classs,
+                    ' '.join(('gray-style', css_classs)))
         else:
             modified_bodytag = bodytag.replace('>', ' class="gray-style">')
         html_text = html_text.replace(bodytag, modified_bodytag)
