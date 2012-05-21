@@ -7,7 +7,7 @@ Introduction
 The ``stxnext.grayscale`` package is an add-on Product for Plone that gives the possibility of displaying
 the web content of the site in the grayscale colors.
 
-.. image:: https://github.com/prmtl/stxnext.grayscale/raw/master/docs/stxnext.grayscale.example.png
+.. image:: https://github.com/stxnext/stxnext.grayscale/raw/master/docs/stxnext.grayscale.example.png
 
 Colors transformation
 =====================
@@ -28,7 +28,7 @@ Plone 3
 
 1. Add stxnext.grayscale to your plone.recipe.zope2instance section's eggs (Note the use of
 the [Zope2.10] extra, which brings in the ZPublisherEventsBackport package for forward
-compatibility with Zope 2.12 / Plone 4):
+compatibility with Zope 2.12 / Plone 4)::
 
     [instance]
     recipe = plone.recipe.zope2instance
@@ -45,7 +45,7 @@ Plone 4
 1. Add stxnext.grayscale to your plone.recipe.zope2instance section's eggs.
 Define the resources parameter to point to the existing directory where the
 transformed resources will be stored to avoid multiple transformation of
-the same resource:
+the same resource::
 
     [instance]
     recipe = plone.recipe.zope2instance
@@ -69,6 +69,7 @@ Author & Contact
 
  * Radosław Jankiewicz ``radoslaw.jankiewicz@stxnext.pl``
  * Sebastian Kalinowski ``sebastian.kalinowski@stxnext.pl``
+ * Krzysztof Skarupa ``krzysztof.skarupa@stxnext.pl``
 
 .. image:: http://stxnext.pl/open-source/files/stx-next-logo
 
