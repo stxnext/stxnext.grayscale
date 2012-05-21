@@ -105,8 +105,11 @@ def grayscale_tuple(tup):
     with the valu of the input color converted
     to grayscale
     """
-    gray = 0.299 * tup[0] + 0.587 * tup[1] + 0.114 * tup[2]
-    gray = int(round(gray))
+    try:
+        gray = 0.299 * tup[0] + 0.587 * tup[1] + 0.114 * tup[2]
+        gray = int(round(gray))
+    except (IndexError, TypeError):
+        raise ValueError, "input %s is not in (r, g, b) format" % str(tup)
     return (gray, gray, gray)
 
 def hex_to_tuple(text):
@@ -132,9 +135,10 @@ def rgb_to_tuple(text):
     """
     numbers = re.findall(r'\d+', text)
     if '%' in text:
-        return tuple([int((int(x)/100.0) * 255) for x in numbers])
+        tup = tuple([int((int(x)/100.0) * 255) for x in numbers])
     else:
-        return tuple([int(x) for x in numbers])
+        tup = tuple([int(x) for x in numbers])
+    return tup
 
 def rgba_grayscale(text):
     """
@@ -142,8 +146,11 @@ def rgba_grayscale(text):
     """
     tup_val = rgb_to_tuple(text)
     rgb_grayscale_tup = grayscale_tuple(tup_val[:3])
-    rgba_grayscale_tup = rgb_grayscale_tup + tup_val[3:5]
-    return "rgba(%d, %d, %d, %d.%d)" % rgba_grayscale_tup
+    if not tup_val[3:5]:
+        raise ValueError, "input %s is not in rgba(x,y,z,a) format" % text
+    alpha = float('.'.join([str(n) for n in tup_val[3:5]]))
+    rgba_grayscale_tup = rgb_grayscale_tup + (alpha, )
+    return "rgba(%d, %d, %d, %.1f)" % rgba_grayscale_tup
 
 def tuple_to_hex(tup):
     """
