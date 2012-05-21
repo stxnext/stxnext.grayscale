@@ -10,7 +10,7 @@ setup (
     author='STX Next Sp. z o.o.',
     author_email='info@stxnext.pl',
     description='Plone add-on product for displaying the content in grayscale.',
-    long_description=open("README.txt").read() + "\n" +
+    long_description=open("README.rst").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
     keywords='plone grayscale images',
     platforms=['Any'],
