@@ -7,14 +7,14 @@ version = open('src/stxnext/grayscale/version.txt').read()
 setup (
     name='stxnext.grayscale',
     version=version,
-    author='STX Next Sp. z o.o, Radosław Jankiewicz',
+    author='STX Next Sp. z o.o.',
     author_email='info@stxnext.pl',
-    description='Displays the web pages transformed to grayscale.',
+    description='Plone add-on product for displaying the content in grayscale.',
     long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
-    keywords='plone grayscale',
-    platforms=['any'],
-    url='http://www.stxnext.pl/open-source',
+    keywords='plone grayscale images',
+    platforms=['Any'],
+    url='http://stxnext.pl/open-source',
     license='Zope Public License, Version 2.1 (ZPL)',
     packages=find_packages('src'),
     include_package_data=True,
@@ -40,7 +40,6 @@ setup (
     """,
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
         'Framework :: Zope2',
         'Framework :: Plone',
         'Intended Audience :: Developers',
