@@ -26,18 +26,7 @@ Installation
 Plone 3
 -------
 
-1. Add stxnext.grayscale to your plone.recipe.zope2instance section's eggs (Note the use of
-the [Zope2.10] extra, which brings in the ZPublisherEventsBackport package for forward
-compatibility with Zope 2.12 / Plone 4)::
-
-    [instance]
-    recipe = plone.recipe.zope2instance
-    ...
-    eggs =
-        ...
-        stxnext.grayscale [Zope2.10]
-
-2. Install the Product via portal_quickinstaller.
+For sites based on Plone 3.x use `stxnext.grayscale v 1.0.0`_
 
 Plone 4
 -------
@@ -69,7 +58,6 @@ Author & Contact
 
  * Radosław Jankiewicz ``radoslaw.jankiewicz@stxnext.pl``
  * Sebastian Kalinowski ``sebastian.kalinowski@stxnext.pl``
- * Krzysztof Skarupa ``krzysztof.skarupa@stxnext.pl``
 
 .. image:: http://stxnext.pl/open-source/files/stx-next-logo
 
@@ -84,4 +72,4 @@ License
 
 This package is licensed under the Zope Public License.
 
-.. _`Plone 4.1`: http://pypi.python.org/pypi/Plone/4.1rc2
+.. _`stxnext.grayscale v 1.0.0`: https://pypi.python.org/pypi/stxnext.grayscale/1.0.0
